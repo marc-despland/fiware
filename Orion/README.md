@@ -14,14 +14,12 @@ mongo -uadmin -pTnnpyurMc7WR7lmE admin
 ```
 
 Then create the user
-
 ```
 db.createUser({ user: "orion" , pwd: "f64RGhasN9vW", roles: ["readWriteAnyDatabase"]})
 
 ```
 
-test it :
-
+And tests it :
 ```
 mongo -uorion -pf64RGhasN9vW admin
 ```
