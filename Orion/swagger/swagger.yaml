@@ -1,0 +1,1271 @@
+swagger: '2.0'
+info:
+  description: This is a documentation for Orion context broker API
+  version: 1.0.0
+  title: Fiware ORION Api
+basePath: /
+tags:
+  - name: Admin
+    description: Administration fonctions
+  - name: NGSIv2
+    description: NGSIv2 feartures
+    externalDocs:
+      description: API v2 NGSI
+      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html
+  - name: NGSI9
+    description: NGSI9 fearture
+    externalDocs:
+      description: API v1 NGSI 9
+      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi9
+  - name: NGSI10
+    description: NGSI10 fearture
+    externalDocs:
+      description: API v1 NGSI 10
+      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi10
+  - name: Standard
+    description: Standard NGSI API
+  - name: Convenient
+    description: Convenient NGSI API added by Fiware
+schemes:
+  - http
+paths:
+#############################################################################
+#
+#  Admin
+#
+  /version:
+    get:
+      tags:
+        - Admin
+      summary: Get Version
+      description: Return the version of teh Orion instance
+      operationId: getVersion
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/Version'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+#############################################################################
+#
+#  V2
+#
+  /v2/entities:
+    get:
+      tags:
+        - NGSIv2
+      summary: Get all entities
+      description: Get all entities and filtering result
+      operationId: getEntitiesV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#getting-all-entities-and-filtering"
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: type
+          type: string
+          description: Return all entities of the given type
+          required: false
+        - in: query
+          name: idPattern
+          type: string
+          description: Filter the result with the given regex on id
+          required: false
+        - in: query
+          name: q
+          type: string
+          description: Filter the result with the given query
+          required: false
+      responses:
+        200:
+          description: The list of entities
+          schema:
+            $ref: '#/definitions/EntitiesV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+        - NGSIv2
+      summary: Create an entity
+      description: Create an entity
+      operationId: createEntityV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - application/octet-stream 
+      parameters:
+        - in: body
+          name: body
+          description: The entity to create
+          required: true
+          schema:
+            $ref: '#/definitions/EntityAttributesV2'
+      responses:
+        201:
+          description: Entity successfully created
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/entities/{entityid}:
+    get:
+      tags:
+        - NGSIv2
+      summary: Query an entity
+      description: Query an entity
+      operationId: getEntityV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#query-entity"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: Return the entity of the given type
+          required: false
+      responses:
+        200:
+          description: The entity
+          schema:
+            $ref: '#/definitions/EntityAttributesV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/entities/{entityid}?options=keyValues:
+    get:
+      tags:
+        - NGSIv2
+      summary: Query an entity with compact result
+      description: Query an entity with compact result
+      operationId: getEntityKeyValueV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#query-entity"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: Return the entity of the given type
+          required: false
+      responses:
+        200:
+          description: The searched entity
+          schema:
+            $ref: '#/definitions/EntityCompactV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/entities/{entityid}?options=values:
+    get:
+      tags:
+        - NGSIv2
+      summary: Query an entity attributes values
+      description: Query an entity attributes values
+      operationId: getEntityAttributeV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#query-entity"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: query
+          name: type
+          type: string
+          description: Return the entity of the given type
+          required: false
+        - in: query
+          name: attrs
+          type: string
+          description: Attributes list, commat separate, no space
+          required: true
+      responses:
+        200:
+          description: The result value
+          schema:
+            $ref: '#/definitions/ValuesArrayV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/entities/{entityid}/attrs:
+    patch:
+      tags:
+        - NGSIv2
+      summary: Update the existing attributes of an entity
+      description: Update the existing attributes of an entity
+      operationId: updateEntityAttributeValuesV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#update-entity"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: body
+          name: attribute
+          schema:
+            $ref: '#/definitions/AttributeListV2'
+          description: The attributes to update
+          required: true
+      responses:
+        204:
+          description: Success
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      tags:
+        - NGSIv2
+      summary: Update the list of attributes of an entity (Remove existing ones)
+      description: Update the list of attributes of an entity (Remove existing ones)
+      operationId: updateEntityDefinitionV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#update-entity"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: body
+          name: attribute
+          schema:
+            $ref: '#/definitions/AttributeListV2'
+          description: The attributes to update
+          required: true
+      responses:
+        204:
+          description: Success
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/entities/{entityid}/attrs/{attribute}:
+    get:
+      tags:
+        - NGSIv2
+      summary: Query an entity attribute
+      description: Query an entity attribute
+      operationId: getEntityAttributeV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#query-entity"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: path
+          name: attribute
+          type: string
+          description: The attribute name to query
+          required: true
+      responses:
+        200:
+          description: The searched attribute
+          schema:
+            $ref: '#/definitions/AttributeV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/entities/{entityid}/attrs/{attribute}/value:
+    get:
+      tags:
+        - NGSIv2
+      summary: Query an entity attribute
+      description: Query an entity attribute
+      operationId: getEntityAttributeValueV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#query-entity"
+      produces:
+        - text/plain
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: path
+          name: attribute
+          type: string
+          description: The attribute name to query
+          required: true
+      responses:
+        200:
+          description: The value of the given attribute
+          schema:
+            $ref: '#/definitions/AttributeValueV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      tags:
+        - NGSIv2
+      summary: Update the value of an attribute
+      description: Update the value of an attribute
+      operationId: updateEntityAttributeValueV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#update-entity"
+      consumes:
+        - text/plain
+      produces:
+        - text/plain
+      parameters:
+        - in: path
+          name: entityid
+          type: string
+          description: The entity Id to query
+          required: true
+        - in: path
+          name: attribute
+          type: string
+          description: The attribute name to query
+          required: true
+        - in: body
+          name: value
+          schema:
+            $ref: '#/definitions/AttributeValueV2'
+          description: The attribute name to query
+          required: true
+      responses:
+        204:
+          description: Success
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+# -------------------------------------------------------------------------------
+# Subscriptions
+  /v2/subscriptions:
+    post:
+      tags:
+        - NGSIv2
+      summary: Create a subscription
+      description: Create a subscription
+      operationId: createSubscriptionV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - application/octet-stream 
+      parameters:
+        - in: body
+          name: body
+          description: The subscription to create
+          required: true
+          schema:
+            $ref: '#/definitions/SubscriptionV2'
+      responses:
+        201:
+          description: Subscription successfully created. See header Location for its ID
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the list of subscriptions
+      description: Return the list of subscriptions
+      operationId: listSubscriptionsV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The list of subscription
+          schema:
+            $ref: '#/definitions/SubscriptionListV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/subscriptions/{subscriptionId}:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the subscription detail
+      description: Return the subscription detail
+      operationId: getSubscriptionV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: subscriptionId
+          description: The Id of the subscription searched
+          required: true
+          type: string
+      responses:
+        200:
+          description: The subscription
+          schema:
+            $ref: '#/definitions/SubscriptionV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    patch:
+      tags:
+        - NGSIv2
+      summary: Update the subscription
+      description: Update the subscription
+      operationId: updateSubscriptionV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - application/octet-stream 
+      parameters:
+        - in: path
+          name: subscriptionId
+          description: The Id of the subscription searched
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: The subscription to update
+          required: true
+          schema:
+            $ref: '#/definitions/SubscriptionV2'
+      responses:
+        204:
+          description: Subscription updated
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - NGSIv2
+      summary: Delete the subscription
+      description: Delete the subscription
+      operationId: deleteSubscriptionV2
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: subscriptionId
+          description: The Id of the subscription searched
+          required: true
+          type: string
+      responses:
+        204:
+          description: Subscription deleted
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+# -------------------------------------------------------------------------------
+# Types management
+
+
+
+###############################################################################
+#
+# API v1 NGSI 10
+#
+  /v1/updateContext:
+    post:
+      tags:
+        - NGSI10
+        - Standard
+      summary: Create entities
+      description: Create Entities
+      operationId: createEntities
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The entities to create
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateActions'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/registerContext:
+    post:
+      tags:
+        - NGSI9
+        - Standard
+      summary: Register entities
+      description: Register Entities
+      operationId: registerContext
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/ContextRegistrations'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/contextEntities/{entityid}:
+    get:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Discover registration for a given entity
+      description: Discover registration
+      operationId: discoverEntityRegistration
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          required: true
+          description: The entity to register
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextRegistrationResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/contextEntities/{entityid}/attributes/{attribute}:
+    get:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Discover registration for a given entity and attribute
+      description: Discover registration for a given entity and attribute
+      operationId: discoverEntityAttributeRegistration
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          required: true
+          description: The entity to register
+          type: string
+        - in: path
+          name: attribute
+          required: true
+          description: The attribute of the entity to register
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextRegistrationResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Register an entitie with a given attribute
+      description: Register Entities
+      operationId: entityAttributeRegisterContext
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entityid
+          required: true
+          description: The entity to register
+          type: string
+        - in: path
+          name: attribute
+          required: true
+          description: The attribute of the entity to register
+          type: string
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/EntityContextRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/contextEntitiesTypes/{typeid}:
+    post:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Register a type 
+      description: Register a Type 
+      operationId: typeRegisterContext
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: typeid
+          required: true
+          description: The type to register
+          type: string
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/EntityContextRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/contextEntitiesTypes/{typeid}/attributes/{attribute}:
+    post:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Register a type with a given attribute
+      description: Register a Type and its given attribute
+      operationId: typeAttributeRegisterContext
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: typeid
+          required: true
+          description: The type to register
+          type: string
+        - in: path
+          name: attribute
+          required: true
+          description: The attribute of the type to register
+          type: string
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/EntityContextRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/discoverContextAvailability:
+    post:
+      tags:
+        - NGSI9
+        - Standard
+      summary: Discover Context Availability
+      description: Discover Context Availability
+      operationId: dicoverContextAvailability
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/ContextRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextRegistrationResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/subscribeContextAvailability:
+    post:
+      tags:
+        - NGSI9
+        - Standard
+      summary: Subscribe Context Availability
+      description: Subscribe Context Availability
+      operationId: subscribeContextAvailability
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/SubscribeRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/contextAvailabilitySubscriptions:
+    post:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Subscribe Context Availability
+      description: Subscribe Context Availability
+      operationId: createContextAvailabilitySubscriptions
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/SubscribeRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/updateContextAvailabilitySubscription:
+    post:
+      tags:
+        - NGSI9
+        - Standard
+      summary: Update Context Availability Subscription
+      description: Update Context Availability Subscription
+      operationId: updateContextAvailabilitySubscription
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSubscribeRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/contextAvailabilitySubscriptions/{subscriptionID}:
+    put:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Update Context Availability Subscription
+      description: Update Context Availability Subscription
+      operationId: updateConvenientContextAvailabilitySubscription
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: subscriptionID
+          required: true
+          description: The subscription ID to update
+          type: string
+        - in: body
+          name: body
+          description: The context registration elements
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSubscribeRegistration'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/RegisterResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - NGSI9
+        - Convenient
+      summary: Cancel a Subscription
+      description: Cancel a Subscription
+      operationId: deleteContextAvailability
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: subscriptionID
+          required: true
+          description: The subscription ID to update
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/CancelSubscriptionResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/registry/unsubscribeContextAvailability:
+    post:
+      tags:
+        - NGSI9
+        - Standard
+      summary: Cancel a Subscription
+      description: Cancel a Subscription
+      operationId: unsubscribeContextAvailability
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The subscription to cancel
+          required: true
+          schema:
+            $ref: '#/definitions/Subscription'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/CancelSubscriptionResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+definitions:
+############################################################################
+#
+# Global Types
+#
+
+
+
+############################################################################
+#
+# Type for Admin
+#
+  Version:
+    required:
+      - orion
+    properties:
+      orion:
+        $ref: '#/definitions/OrionVersion'
+  OrionVersion:
+    required:
+      - version
+    properties:
+      version:
+        type: string
+      uptime:
+        type: string
+      git_hash:
+        type: string
+      compile_time:
+        type: string
+      compiled_by:
+        type: string
+      compiled_in:
+        type: string
+
+
+############################################################################
+#
+# Type for APIv2
+#
+  EntitiesV2:
+    type: array
+    items:
+      $ref: '#/definitions/EntityAttributesV2'
+  ValuesArrayV2:
+    type: array
+    items:
+      type: [string, integer, number]
+  AttributeValueV2:
+    type: [string, integer, number]
+  EntityCompactV2:
+    allOf:
+      - $ref: '#/definitions/EntityV2'
+      - additionalProperties:
+          type: [string, integer, number]
+  EntityV2:
+    required:
+      - type
+      - id
+    properties:
+      type:
+        type: string
+      id:
+        type: string
+  EntityAttributesV2:
+    allOf:
+      - $ref: '#/definitions/EntityV2'
+      - $ref: '#/definitions/AttributeListV2'
+  AttributeListV2:
+    additionalProperties:
+      $ref: '#/definitions/AttributeV2'
+  AttributeV2:
+    required:
+      - value
+      - type
+    properties:
+      value:
+        type: [string, integer, number]
+      type:
+        type: string
+      metadata:
+        type: object
+  ErrorResponse:
+    required:
+      - error
+      - description
+    properties:
+      error:
+        type: string
+      description:
+        type: string
+  SubscriptionListV2:
+    type: array
+    items:
+      $ref: '#/definitions/SubscriptionV2'
+  SubscriptionV2:
+    required:
+      - subject
+      - notification
+      - throttling
+    properties:
+      id:
+        type: string
+      status:
+        enum: ["active", "inactive"]
+      description:
+        type: string
+      subject:
+        $ref: '#/definitions/SubscriptionSubjectV2'
+      notification:
+        $ref: '#/definitions/NotificationV2'
+      expires:
+        type: string
+        format: date-time
+      throttling:
+        type: integer
+  SubscriptionSubjectV2:
+    required:
+      - entities
+      - condition
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/EntityV2'
+      condition:
+        $ref: '#/definitions/SubscriptionConditionV2'
+  SubscriptionConditionV2:
+    properties:
+      attrs:
+        type: array
+        items:
+          type: string
+  NotificationV2:
+    required:
+      - attrs
+    properties:
+      timeSent:
+        type: integer
+      lastNotification:
+        type: string
+        format: date-time
+      attrsFormat:
+        enum: ["normalized"]
+      http:
+        $ref: '#/definitions/NotificationHttpV2'
+      attrs:
+        type: array
+        items: 
+          type: string
+      exceptAttrs:
+        type: array
+        items: 
+          type: string
+  NotificationHttpV2:
+    required:
+      - url
+    properties:
+      url:
+        type: string
+
+############################################################################
+#
+# Type for APIv1 NGSI 10
+#
+
+############################################################################
+#
+# Type for APIv1 NGSI 9
+#
+  CancelSubscriptionResponse:
+    properties:
+      statusCode:
+        $ref: '#/definitions/ErrorCode'
+      subscriptionId:
+        type: string
+      errorCode:
+        $ref: '#/definitions/ErrorCode'  
+  Subscription:
+    required:
+      - subscriptionId
+    properties:
+      subscriptionId:
+        type: string
+  EntityContextRegistration:
+    required:
+      - duration
+    properties:
+      duration:
+        type: string
+        example: "P1M"
+      provindingApplication:
+        type: string
+  SubscribeRegistration:
+    required:
+      - entities
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/Attribute'
+      reference:
+        type: string
+      duration:
+        type: string
+        example: "P1M"
+      provindingApplication:
+        type: string
+      subscriptionId:
+        type: string
+  UpdateSubscribeRegistration:
+    required:
+      - subscriptionId
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/Attribute'
+      reference:
+        type: string
+      duration:
+        type: string
+        example: "P1M"
+      provindingApplication:
+        type: string
+      subscriptionId:
+        type: string
+  ContextRegistrationResponses:
+    properties:
+      contextRegistrationResponses:
+        type: array
+        items:
+          $ref: '#/definitions/ContextRegistration'
+      errorCode:
+        $ref: '#/definitions/ErrorCode'
+  ContextRegistrations:
+    required:
+      - contextRegistrations
+      - duration
+    properties:
+      contextRegistrations:
+        type: array
+        items:
+          $ref: '#/definitions/ContextRegistration'
+      duration:
+        type: string
+        example: P1M
+  ContextRegistration:
+    required:
+      - entities
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/Attribute'
+      provindingApplication:
+        type: string
+  UpdateActions:
+    required:
+      - contextElements
+      - updateAction
+    properties:
+      contextElements:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      updateAction:
+        type: string
+  Entity:
+    required:
+      - type
+      - isPattern
+      - id
+    properties:
+      type:
+        type: string
+      isPattern:
+        type: boolean
+      id:
+        type: string
+      attributes:
+        type: array
+        items:
+          $ref: '#/definitions/Attribute'
+  Attribute:
+    required:
+      - name
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      isDomain:
+        type: boolean
+      value:
+        type: [string, integer, number]
+  RegisterResponse:
+    properties:
+      duration:
+        type: string
+      registrationId:
+        type: string
+      errorCode:
+        $ref: '#/definitions/ErrorCode'
+  ErrorCode:
+    required:
+      - code
+      - reasonPrase
+    properties:
+      code:
+        type: string
+      reasonPrase:
+        type: string
+externalDocs:
+  description: Fiware Orion Context Broker documentation
+  url: 'http://fiware-orion.readthedocs.io'
