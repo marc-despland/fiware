@@ -12,20 +12,16 @@ tags:
     externalDocs:
       description: API v2 NGSI
       url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html
-  - name: NGSI9
-    description: NGSI9 fearture
-    externalDocs:
-      description: API v1 NGSI 9
-      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi9
   - name: NGSI10
     description: NGSI10 fearture
     externalDocs:
       description: API v1 NGSI 10
       url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi10
-  - name: Standard
-    description: Standard NGSI API
-  - name: Convenient
-    description: Convenient NGSI API added by Fiware
+  - name: NGSI9
+    description: NGSI9 fearture
+    externalDocs:
+      description: API v1 NGSI 9
+      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi9
 schemes:
   - http
 paths:
@@ -516,7 +512,112 @@ paths:
 # -------------------------------------------------------------------------------
 # Types management
 
+  /v2/types:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the list of known types
+      description: Return the list of known types
+      operationId: listTypes
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The list of types
+          schema:
+            $ref: '#/definitions/Types'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
+  /v2/types?options=values:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the list of known types names
+      description: Return the list of known types names
+      operationId: listTypesNames
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The list of types
+          schema:
+            type: array
+            items:
+              type: string
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/types/{type}:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the detail of a type
+      description: Return the detail of a type
+      operationId: gettype
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: type
+          description: The name of the type
+          required: true
+          type: string
+      responses:
+        200:
+          description: The detail of the type
+          schema:
+            $ref: '#/definitions/Type'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+# -------------------------------------------------------------------------------
+# Batch operations
+
+  /v2/op/update:
+    post:
+      tags:
+        - NGSIv2
+      summary: Excecute a batch operation (Append or Update)
+      description: Excecute a batch operation (Append or Update)
+      operationId: batchUpdate
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#batch-operations"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: action
+          description: The action to execute
+          required: true
+          schema:
+            $ref: '#/definitions/ActionV2'
+      responses:
+        204:
+          description: Success
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
 ###############################################################################
 #
@@ -526,10 +627,9 @@ paths:
     post:
       tags:
         - NGSI10
-        - Standard
-      summary: Create entities
-      description: Create Entities
-      operationId: createEntities
+      summary: Create or Update entities
+      description: Create or Update Entities.
+      operationId: updateEntities
       deprecated: true
       externalDocs: 
         url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#entity-creation"
@@ -540,7 +640,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: The entities to create
+          description: The entities to create or update
           required: true
           schema:
             $ref: '#/definitions/UpdateActions'
@@ -553,11 +653,46 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ErrorResponse'
+
+  /v1/queryContext:
+    post:
+      tags:
+        - NGSI10
+      summary: List existing entities
+      description: List existing Entities.
+      operationId: queryEntities
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#query-context-operation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the requested entities
+          required: true
+          schema:
+            $ref: '#/definitions/QueryContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+###############################################################################
+#
+# API v1 NGSI 9
+#
   /v1/registry/registerContext:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Register entities
       description: Register Entities
       operationId: registerContext
@@ -585,7 +720,6 @@ paths:
     get:
       tags:
         - NGSI9
-        - Convenient
       summary: Discover registration for a given entity
       description: Discover registration
       operationId: discoverEntityRegistration
@@ -610,7 +744,6 @@ paths:
     get:
       tags:
         - NGSI9
-        - Convenient
       summary: Discover registration for a given entity and attribute
       description: Discover registration for a given entity and attribute
       operationId: discoverEntityAttributeRegistration
@@ -639,7 +772,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Register an entitie with a given attribute
       description: Register Entities
       operationId: entityAttributeRegisterContext
@@ -677,7 +809,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Register a type 
       description: Register a Type 
       operationId: typeRegisterContext
@@ -710,7 +841,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Register a type with a given attribute
       description: Register a Type and its given attribute
       operationId: typeAttributeRegisterContext
@@ -748,7 +878,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Discover Context Availability
       description: Discover Context Availability
       operationId: dicoverContextAvailability
@@ -776,7 +905,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Subscribe Context Availability
       description: Subscribe Context Availability
       operationId: subscribeContextAvailability
@@ -804,7 +932,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Subscribe Context Availability
       description: Subscribe Context Availability
       operationId: createContextAvailabilitySubscriptions
@@ -832,7 +959,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Update Context Availability Subscription
       description: Update Context Availability Subscription
       operationId: updateContextAvailabilitySubscription
@@ -860,7 +986,6 @@ paths:
     put:
       tags:
         - NGSI9
-        - Convenient
       summary: Update Context Availability Subscription
       description: Update Context Availability Subscription
       operationId: updateConvenientContextAvailabilitySubscription
@@ -892,7 +1017,6 @@ paths:
     delete:
       tags:
         - NGSI9
-        - Convenient
       summary: Cancel a Subscription
       description: Cancel a Subscription
       operationId: deleteContextAvailability
@@ -917,7 +1041,6 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Cancel a Subscription
       description: Cancel a Subscription
       operationId: unsubscribeContextAvailability
@@ -946,6 +1069,10 @@ definitions:
 #
 # Global Types
 #
+  StringArray:
+    type: array
+    items:
+      type: string
 
 
 
@@ -1101,12 +1228,85 @@ definitions:
     properties:
       url:
         type: string
+  Types:
+    type: array
+    items:
+      $ref: '#/definitions/Type'
+  Type:
+    required:
+      - count
+    properties:
+      attrs:
+        $ref: '#/definitions/AttributesType'
+      count:
+        type: integer
+      type:
+        type: string
+  AttributesType:
+    additionalProperties:
+      $ref: '#/definitions/AttributeType'
+  AttributeType:
+    required:
+      - types
+    properties:
+      types:
+        type: array
+        items:
+          type: string
+  ActionV2:
+    required:
+      - actionType
+      - entities
+    properties:
+      actionType:
+        type: string
+        enum: ["APPEND", "UPDATE", "DELETE", "APPEND_STRICT"]
+      entities:
+        type: array
+        items: 
+          $ref: '#/definitions/EntityAttributesV2'
 
 ############################################################################
 #
 # Type for APIv1 NGSI 10
 #
-
+  QueryContext:
+    allOf:
+      - $ref: '#/definitions/Entities'
+      - properties:
+          attrinutes:
+            type: array
+            items: 
+              type: string
+  UpdateActions:
+    required:
+      - contextElements
+      - updateAction
+    properties:
+      contextElements:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      updateAction:
+        type: string
+        enum: [APPEND, UPDATE] 
+  ContextResponses:
+    required:
+      - contextResponses
+    properties:
+      contextResponses:
+        type: array
+        items:
+          $ref: '#/definitions/ContextResponse'
+  ContextResponse:
+    required:
+      - contextElements
+      - statusCode
+    properties:
+      contextElement:
+        $ref: '#/definitions/Entity'
+      statusCode:
+        $ref: '#/definitions/ErrorCode'
 ############################################################################
 #
 # Type for APIv1 NGSI 9
@@ -1210,17 +1410,14 @@ definitions:
           $ref: '#/definitions/Attribute'
       provindingApplication:
         type: string
-  UpdateActions:
+  Entities: 
     required:
-      - contextElements
-      - updateAction
+      - entities
     properties:
-      contextElements:
+      entities:
         type: array
         items:
           $ref: '#/definitions/Entity'
-      updateAction:
-        type: string
   Entity:
     required:
       - type
