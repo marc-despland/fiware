@@ -207,7 +207,7 @@ paths:
         200:
           description: The result value
           schema:
-            $ref: '#/definitions/ValuesArrayV2'
+            $ref: '#/definitions/ValuesArray'
         default:
           description: Error
           schema:
@@ -332,7 +332,7 @@ paths:
         200:
           description: The value of the given attribute
           schema:
-            $ref: '#/definitions/AttributeValueV2'
+            $ref: '#/definitions/Value'
         default:
           description: Error
           schema:
@@ -363,7 +363,7 @@ paths:
         - in: body
           name: value
           schema:
-            $ref: '#/definitions/AttributeValueV2'
+            $ref: '#/definitions/Value'
           description: The attribute name to query
           required: true
       responses:
@@ -680,6 +680,225 @@ paths:
           description: Success
           schema:
             $ref: '#/definitions/ContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/subscribeContext:
+    post:
+      tags:
+        - NGSI10
+      summary: Subscribe entity change
+      description: Subscribe entity change
+      operationId: subscribeContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the subscription
+          required: true
+          schema:
+            $ref: '#/definitions/SubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/updateContextSubscription:
+    post:
+      tags:
+        - NGSI10
+      summary: Update a subscription
+      description: Update a subscription
+      operationId: updateSubscribeContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the subscription
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/unsubscribeContext:
+    post:
+      tags:
+        - NGSI10
+      summary: Unsubscribe entity change
+      description: Unubscribe entity change
+      operationId: unsubscribeContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The subscriptionId to delete
+          required: true
+          schema:
+            $ref: '#/definitions/UnsubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/UnsubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntities:
+    post:
+      tags:
+        - NGSI10
+      summary: Create an entity
+      description: Create an entity 
+      operationId: createEntity
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The entity to create
+          required: true
+          schema:
+            $ref: '#/definitions/EntityAttributes'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/EntityCreationContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntities/{entity}:
+    post:
+      tags:
+        - NGSI10
+      summary: Create an entity
+      description: Create an entity (Entity type will be 'Thing')
+      operationId: createEntityThing
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: The entity to create
+          required: true
+          schema:
+            $ref: '#/definitions/ContextAttributes'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/EntityCreationContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - NGSI10
+      summary: Get an entity
+      description: Get an entity
+      operationId: getEntity
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-query-context"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /v1/contextEntities/{entity}/attributes/{attribute}:
+    post:
+      tags:
+        - NGSI10
+      summary: Create an attribute and if it doesn't exists the entity 
+      description: Create an attribute and if it doesn't exists the entity (Attribute type will be 'Text')
+      operationId: createAttribute
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+        - in: path
+          name: attribute
+          description: The attribute name to create
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: The entity to create
+          required: true
+          schema:
+            $ref: '#/definitions/AttributeValue'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ErrorCode'
         default:
           description: Error
           schema:
@@ -1073,6 +1292,21 @@ definitions:
     type: array
     items:
       type: string
+  Duration:
+    type: string
+    description: https://en.wikipedia.org/wiki/ISO_8601#Durations
+  Value:
+    type: [string, integer, number]
+  AttributeValue:
+    required:
+      - value
+    properties:
+      value:
+        $ref: '#/definitions/Value'
+  ValuesArray:
+    type: array
+    items:
+      $ref: '#/definitions/Value'
 
 
 
@@ -1112,17 +1346,11 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/EntityAttributesV2'
-  ValuesArrayV2:
-    type: array
-    items:
-      type: [string, integer, number]
-  AttributeValueV2:
-    type: [string, integer, number]
   EntityCompactV2:
     allOf:
       - $ref: '#/definitions/EntityV2'
       - additionalProperties:
-          type: [string, integer, number]
+          $ref: '#/definitions/Value'
   EntityV2:
     required:
       - type
@@ -1143,13 +1371,13 @@ definitions:
     required:
       - value
       - type
-    properties:
-      value:
-        type: [string, integer, number]
-      type:
-        type: string
-      metadata:
-        type: object
+    allOf:
+      - $ref: '#/definitions/AttributeValue'
+      - properties:
+          type:
+            type: string
+          metadata:
+            type: object
   ErrorResponse:
     required:
       - error
@@ -1304,9 +1532,99 @@ definitions:
       - statusCode
     properties:
       contextElement:
-        $ref: '#/definitions/Entity'
+        $ref: '#/definitions/EntityAttributes'
       statusCode:
         $ref: '#/definitions/ErrorCode'
+  SubscribeContext:
+    required:
+      - entities
+      - reference
+      - duration
+      - throttling
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          type: string
+      reference:
+        type: string
+      duration:
+        $ref: '#/definitions/Duration'
+      throttling:
+        $ref: '#/definitions/Duration'
+      notifyConditions:
+        type: array
+        items:
+          $ref: '#/definitions/NotifyCondition'
+  UpdateSubscribeContext:
+    required:
+      - subscriptionId
+    properties:
+      subscriptionId:
+        type: string
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          type: string
+      reference:
+        type: string
+      duration:
+        $ref: '#/definitions/Duration'
+      throttling:
+        $ref: '#/definitions/Duration'
+      notifyConditions:
+        type: array
+        items:
+          $ref: '#/definitions/NotifyCondition'
+  UnsubscribeContext:
+    required:
+      - subscriptionId
+    properties:
+      subscriptionId:
+        type: string
+  NotifyCondition:
+    properties:
+      type:
+        type: string
+        enum: [ONCHANGE]
+      condValues:
+        type: array
+        items:
+          type: string
+  SubscribeResponse:
+    properties:
+      duration:
+        $ref: '#/definitions/Duration'
+      subscriptionId:
+        type: string
+  UnsubscribeResponse:
+    properties:
+      statusCode:
+        $ref: '#/definitions/ErrorCode'
+      subscriptionId:
+        type: string
+  EntityCreationContextResponse:
+    allOf:
+      - $ref: '#/definitions/ContextAttributes'
+      - properties:
+          statusCode:
+            $ref: '#/definitions/ErrorCode'
+  EntityCreationContextResponses:
+    allOf:
+      - $ref: '#/definitions/Entity'
+      - properties:
+          contextResponses:
+            type: array
+            items:
+              $ref: '#/definitions/EntityCreationContextResponse'
 ############################################################################
 #
 # Type for APIv1 NGSI 9
@@ -1330,52 +1648,33 @@ definitions:
       - duration
     properties:
       duration:
-        type: string
-        example: "P1M"
+        $ref: '#/definitions/Duration'
       provindingApplication:
         type: string
   SubscribeRegistration:
-    required:
-      - entities
-    properties:
-      entities:
-        type: array
-        items:
-          $ref: '#/definitions/Entity'
-      attributes:
-        type: array
-        items:
-          $ref: '#/definitions/Attribute'
-      reference:
-        type: string
-      duration:
-        type: string
-        example: "P1M"
-      provindingApplication:
-        type: string
-      subscriptionId:
-        type: string
+    allOf:
+      - properties:
+          entities:
+            type: array
+            items:
+              $ref: '#/definitions/Entity'
+          reference:
+            type: string
+          duration:
+            $ref: '#/definitions/Duration'
+          provindingApplication:
+            type: string
+          subscriptionId:
+            type: string
+      - $ref: '#/definitions/ContextAttributes'
   UpdateSubscribeRegistration:
     required:
       - subscriptionId
-    properties:
-      entities:
-        type: array
-        items:
-          $ref: '#/definitions/Entity'
-      attributes:
-        type: array
-        items:
-          $ref: '#/definitions/Attribute'
-      reference:
-        type: string
-      duration:
-        type: string
-        example: "P1M"
-      provindingApplication:
-        type: string
-      subscriptionId:
-        type: string
+    allOf:
+      - properties:
+          subscriptionId:
+            type: string
+      - $ref: '#/definitions/SubscribeRegistration'
   ContextRegistrationResponses:
     properties:
       contextRegistrationResponses:
@@ -1394,22 +1693,19 @@ definitions:
         items:
           $ref: '#/definitions/ContextRegistration'
       duration:
-        type: string
-        example: P1M
+        $ref: '#/definitions/Duration'
   ContextRegistration:
     required:
       - entities
-    properties:
-      entities:
-        type: array
-        items:
-          $ref: '#/definitions/Entity'
-      attributes:
-        type: array
-        items:
-          $ref: '#/definitions/Attribute'
-      provindingApplication:
-        type: string
+    allOf:
+      - properties:
+          entities:
+            type: array
+            items:
+              $ref: '#/definitions/Entity'
+          provindingApplication:
+            type: string
+      - $ref: '#/definitions/ContextAttributes'
   Entities: 
     required:
       - entities
@@ -1421,7 +1717,6 @@ definitions:
   Entity:
     required:
       - type
-      - isPattern
       - id
     properties:
       type:
@@ -1430,26 +1725,34 @@ definitions:
         type: boolean
       id:
         type: string
+  EntityAttributes:
+    allOf:
+      - $ref: '#/definitions/Entity'
+      - $ref: '#/definitions/ContextAttributes'
+  Attribute:
+    required:
+      - name
+    allOf:
+      - properties:
+          name:
+            type: string
+          type:
+            type: string
+          isDomain:
+            type: boolean
+          value:
+            type: [string, integer, number]
+      - $ref: '#/definitions/AttributeValue'
+  ContextAttributes:
+    properties:
       attributes:
         type: array
         items:
           $ref: '#/definitions/Attribute'
-  Attribute:
-    required:
-      - name
-    properties:
-      name:
-        type: string
-      type:
-        type: string
-      isDomain:
-        type: boolean
-      value:
-        type: [string, integer, number]
   RegisterResponse:
     properties:
       duration:
-        type: string
+        $ref: '#/definitions/Duration'
       registrationId:
         type: string
       errorCode:
