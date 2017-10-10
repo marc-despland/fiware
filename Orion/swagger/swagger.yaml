@@ -12,20 +12,16 @@ tags:
     externalDocs:
       description: API v2 NGSI
       url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html
-  - name: NGSI9
-    description: NGSI9 fearture
-    externalDocs:
-      description: API v1 NGSI 9
-      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi9
   - name: NGSI10
     description: NGSI10 fearture
     externalDocs:
       description: API v1 NGSI 10
       url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi10
-  - name: Standard
-    description: Standard NGSI API
-  - name: Convenient
-    description: Convenient NGSI API added by Fiware
+  - name: NGSI9
+    description: NGSI9 fearture
+    externalDocs:
+      description: API v1 NGSI 9
+      url: http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-management-using-ngsi9
 schemes:
   - http
 paths:
@@ -211,7 +207,7 @@ paths:
         200:
           description: The result value
           schema:
-            $ref: '#/definitions/ValuesArrayV2'
+            $ref: '#/definitions/ValuesArray'
         default:
           description: Error
           schema:
@@ -336,7 +332,7 @@ paths:
         200:
           description: The value of the given attribute
           schema:
-            $ref: '#/definitions/AttributeValueV2'
+            $ref: '#/definitions/Value'
         default:
           description: Error
           schema:
@@ -367,7 +363,7 @@ paths:
         - in: body
           name: value
           schema:
-            $ref: '#/definitions/AttributeValueV2'
+            $ref: '#/definitions/Value'
           description: The attribute name to query
           required: true
       responses:
@@ -516,7 +512,112 @@ paths:
 # -------------------------------------------------------------------------------
 # Types management
 
+  /v2/types:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the list of known types
+      description: Return the list of known types
+      operationId: listTypes
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The list of types
+          schema:
+            $ref: '#/definitions/TypesV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
+  /v2/types?options=values:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the list of known types names
+      description: Return the list of known types names
+      operationId: listTypesNames
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        200:
+          description: The list of types
+          schema:
+            type: array
+            items:
+              type: string
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v2/types/{type}:
+    get:
+      tags:
+        - NGSIv2
+      summary: Return the detail of a type
+      description: Return the detail of a type
+      operationId: gettype
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: type
+          description: The name of the type
+          required: true
+          type: string
+      responses:
+        200:
+          description: The detail of the type
+          schema:
+            $ref: '#/definitions/TypeV2'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+# -------------------------------------------------------------------------------
+# Batch operations
+
+  /v2/op/update:
+    post:
+      tags:
+        - NGSIv2
+      summary: Excecute a batch operation (Append or Update)
+      description: Excecute a batch operation (Append or Update)
+      operationId: batchUpdate
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv2/index.html#batch-operations"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: action
+          description: The action to execute
+          required: true
+          schema:
+            $ref: '#/definitions/ActionV2'
+      responses:
+        204:
+          description: Success
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
 
 ###############################################################################
 #
@@ -526,10 +627,9 @@ paths:
     post:
       tags:
         - NGSI10
-        - Standard
-      summary: Create entities
-      description: Create Entities
-      operationId: createEntities
+      summary: Create or Update entities
+      description: Create or Update Entities.
+      operationId: updateEntities
       deprecated: true
       externalDocs: 
         url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#entity-creation"
@@ -540,7 +640,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: The entities to create
+          description: The entities to create or update
           required: true
           schema:
             $ref: '#/definitions/UpdateActions'
@@ -553,14 +653,588 @@ paths:
           description: Error
           schema:
             $ref: '#/definitions/ErrorResponse'
+
+  /v1/queryContext:
+    post:
+      tags:
+        - NGSI10
+      summary: List existing entities
+      description: List existing Entities.
+      operationId: queryEntities
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#query-context-operation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the requested entities
+          required: true
+          schema:
+            $ref: '#/definitions/QueryContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/subscribeContext:
+    post:
+      tags:
+        - NGSI10
+      summary: Subscribe entity change
+      description: Subscribe entity change
+      operationId: subscribeContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the subscription
+          required: true
+          schema:
+            $ref: '#/definitions/SubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/updateContextSubscription:
+    post:
+      tags:
+        - NGSI10
+      summary: Update a subscription
+      description: Update a subscription
+      operationId: updateSubscribeContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the subscription
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/unsubscribeContext:
+    post:
+      tags:
+        - NGSI10
+      summary: Unsubscribe entity change
+      description: Unubscribe entity change
+      operationId: unsubscribeContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The subscriptionId to delete
+          required: true
+          schema:
+            $ref: '#/definitions/UnsubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/UnsubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntities:
+    post:
+      tags:
+        - NGSI10
+      summary: Create an entity
+      description: Create an entity 
+      operationId: createEntity
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The entity to create
+          required: true
+          schema:
+            $ref: '#/definitions/EntityAttributes'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/EntityCreationContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - NGSI10
+      summary: Return all entities
+      description: Return all entities
+      operationId: getEntities
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#getting-all-entities"
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntities/{entity}:
+    post:
+      tags:
+        - NGSI10
+      summary: Create an entity
+      description: Create an entity (Entity type will be 'Thing')
+      operationId: createEntityThing
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: The entity to create
+          required: true
+          schema:
+            $ref: '#/definitions/ContextAttributes'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/EntityCreationContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - NGSI10
+      summary: Get an entity
+      description: Get an entity
+      operationId: getEntity
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-query-context"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ContextResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+  /v1/contextEntities/{entity}/attributes/{attribute}:
+    post:
+      tags:
+        - NGSI10
+      summary: Create an attribute and if it doesn't exists the entity 
+      description: Create an attribute and if it doesn't exists the entity (Attribute type will be 'Text')
+      operationId: createAttribute
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-entity-creation"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+        - in: path
+          name: attribute
+          description: The attribute name to create
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: The attribute value
+          required: true
+          schema:
+            $ref: '#/definitions/AttributeValue'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    put:
+      tags:
+        - NGSI10
+      summary: Update an attribute value
+      description: Update an attribute value
+      operationId: updateAttribute
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-update-context"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name
+          required: true
+          type: string
+        - in: path
+          name: attribute
+          description: The attribute name to update
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: The attribute value
+          required: true
+          schema:
+            $ref: '#/definitions/AttributeValue'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/ErrorCode'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    get:
+      tags:
+        - NGSI10
+      summary: Get an attribute value
+      description: Get an attribute value
+      operationId: getAttributeValue
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-query-context"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+        - in: path
+          name: attribute
+          description: The attribute name to create
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The attribute value
+          schema:
+            $ref: '#/definitions/ContextAttributesResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntities/{entity}/attributes:
+    put:
+      tags:
+        - NGSI10
+      summary: Update the attributes value of an entity
+      description: Update the attributes value of an entity (the values are empty in the response)
+      operationId: updateAttributeValue
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-update-context"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: entity
+          description: The entity name to create
+          required: true
+          type: string
+        - in: body
+          name: attributes
+          required: true
+          description: new attributes value
+          schema:
+            $ref: '#/definitions/ContextAttributes'
+      responses:
+        '200':
+          description: The attribute value
+          schema:
+            $ref: '#/definitions/ContextAttributesResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntityTypes/{type}:
+    get:
+      tags:
+        - NGSI10
+      summary: Return all the entity of a given type
+      description: Return all the entity of a given type
+      operationId: getEntitiesType
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-query-context"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: type
+          description: The type to query
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The entities list
+          schema:
+            $ref: '#/definitions/ContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextEntityTypes/{type}/attributes/{attribute}:
+    get:
+      tags:
+        - NGSI10
+      summary: Return all the entities of a given type. only the requested attribute is return
+      description: Return all the entities of a given type only the requested attribute is return
+      operationId: getEntitiesType
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-query-context"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: type
+          description: The type to query
+          required: true
+          type: string
+        - in: path
+          name: attribute
+          description: the attribute to return
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The entities list
+          schema:
+            $ref: '#/definitions/ContextResponses'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextTypes:
+    get:
+      tags:
+        - NGSI10
+      summary: Return the list of known types
+      description: Return the list of known types
+      operationId: getTypes
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The types list
+          schema:
+            $ref: '#/definitions/TypesResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextTypes/{type}:
+    get:
+      tags:
+        - NGSI10
+      summary: Return the description of the given type
+      description: Return the description of the given type
+      operationId: getType
+      deprecated: true
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#browsing-all-types-and-detailed-information-on-a-type"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: type
+          description: The type to query
+          required: true
+          type: string
+      responses:
+        '200':
+          description: The type
+          schema:
+            $ref: '#/definitions/TypeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextSubscriptions:
+    post:
+      tags:
+        - NGSI10
+      summary: Subscribe entity change
+      description: Subscribe entity change
+      operationId: subscribeContextConvenient
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-operations-for-context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The description of the subscription
+          required: true
+          schema:
+            $ref: '#/definitions/SubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  /v1/contextSubscriptions/{subscriptionId}:
+    put:
+      tags:
+        - NGSI10
+      summary: Update a subscription
+      description: Update a subscription (subscriptionId must match body and path)
+      operationId: updateSubscribeContextConvenient
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-operations-for-context-subscriptions"
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: subscriptionId
+          required: true
+          description: The Id of the subscription
+          type: string
+        - in: body
+          name: body
+          description: The description of the subscription
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateSubscribeContext'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/SubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      tags:
+        - NGSI10
+      summary: Unsubscribe entity change
+      description: Unubscribe entity change
+      operationId: unsubscribeContextConvenient
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-operations-for-context-subscriptions"
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: subscriptionId
+          required: true
+          description: The Id of the subscription
+          type: string
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/UnsubscribeResponse'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+
+###############################################################################
+#
+# API v1 NGSI 9
+#
   /v1/registry/registerContext:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Register entities
       description: Register Entities
       operationId: registerContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#register-context-operation"
       consumes:
         - application/json
       produces:
@@ -585,10 +1259,11 @@ paths:
     get:
       tags:
         - NGSI9
-        - Convenient
       summary: Discover registration for a given entity
       description: Discover registration
       operationId: discoverEntityRegistration
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-discover-context-availability"
       produces:
         - application/json
       parameters:
@@ -610,10 +1285,11 @@ paths:
     get:
       tags:
         - NGSI9
-        - Convenient
       summary: Discover registration for a given entity and attribute
       description: Discover registration for a given entity and attribute
       operationId: discoverEntityAttributeRegistration
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-discover-context-availability"
       produces:
         - application/json
       parameters:
@@ -639,10 +1315,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Register an entitie with a given attribute
       description: Register Entities
       operationId: entityAttributeRegisterContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-register-context"
       consumes:
         - application/json
       produces:
@@ -677,10 +1354,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Register a type 
       description: Register a Type 
       operationId: typeRegisterContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#only-type-entity-registrations-using-convenience-operations"
       consumes:
         - application/json
       produces:
@@ -710,10 +1388,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Register a type with a given attribute
       description: Register a Type and its given attribute
       operationId: typeAttributeRegisterContext
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#only-type-entity-registrations-using-convenience-operations"
       consumes:
         - application/json
       produces:
@@ -748,10 +1427,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Discover Context Availability
       description: Discover Context Availability
       operationId: dicoverContextAvailability
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#discover-context-availability-operation"
       consumes:
         - application/json
       produces:
@@ -776,10 +1456,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Subscribe Context Availability
       description: Subscribe Context Availability
       operationId: subscribeContextAvailability
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-subscriptions"
       consumes:
         - application/json
       produces:
@@ -804,10 +1485,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Convenient
       summary: Subscribe Context Availability
       description: Subscribe Context Availability
       operationId: createContextAvailabilitySubscriptions
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-operations-for-context-availability-subscriptions"
       consumes:
         - application/json
       produces:
@@ -832,10 +1514,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Update Context Availability Subscription
       description: Update Context Availability Subscription
       operationId: updateContextAvailabilitySubscription
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-subscriptions"
       consumes:
         - application/json
       produces:
@@ -860,10 +1543,11 @@ paths:
     put:
       tags:
         - NGSI9
-        - Convenient
       summary: Update Context Availability Subscription
       description: Update Context Availability Subscription
       operationId: updateConvenientContextAvailabilitySubscription
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-operations-for-context-availability-subscriptions"
       consumes:
         - application/json
       produces:
@@ -892,10 +1576,11 @@ paths:
     delete:
       tags:
         - NGSI9
-        - Convenient
       summary: Cancel a Subscription
       description: Cancel a Subscription
       operationId: deleteContextAvailability
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#convenience-operations-for-context-availability-subscriptions"
       produces:
         - application/json
       parameters:
@@ -917,10 +1602,11 @@ paths:
     post:
       tags:
         - NGSI9
-        - Standard
       summary: Cancel a Subscription
       description: Cancel a Subscription
       operationId: unsubscribeContextAvailability
+      externalDocs: 
+        url: "http://fiware-orion.readthedocs.io/en/master/user/walkthrough_apiv1/index.html#context-availability-subscriptions"
       consumes:
         - application/json
       produces:
@@ -946,6 +1632,25 @@ definitions:
 #
 # Global Types
 #
+  StringArray:
+    type: array
+    items:
+      type: string
+  Duration:
+    type: string
+    description: https://en.wikipedia.org/wiki/ISO_8601#Durations
+  Value:
+    type: [string, integer, number]
+  AttributeValue:
+    required:
+      - value
+    properties:
+      value:
+        $ref: '#/definitions/Value'
+  ValuesArray:
+    type: array
+    items:
+      $ref: '#/definitions/Value'
 
 
 
@@ -985,17 +1690,11 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/EntityAttributesV2'
-  ValuesArrayV2:
-    type: array
-    items:
-      type: [string, integer, number]
-  AttributeValueV2:
-    type: [string, integer, number]
   EntityCompactV2:
     allOf:
       - $ref: '#/definitions/EntityV2'
       - additionalProperties:
-          type: [string, integer, number]
+          $ref: '#/definitions/Value'
   EntityV2:
     required:
       - type
@@ -1016,13 +1715,13 @@ definitions:
     required:
       - value
       - type
-    properties:
-      value:
-        type: [string, integer, number]
-      type:
-        type: string
-      metadata:
-        type: object
+    allOf:
+      - $ref: '#/definitions/AttributeValue'
+      - properties:
+          type:
+            type: string
+          metadata:
+            type: object
   ErrorResponse:
     required:
       - error
@@ -1101,24 +1800,199 @@ definitions:
     properties:
       url:
         type: string
+  TypesV2:
+    type: array
+    items:
+      $ref: '#/definitions/TypeV2'
+  TypeV2:
+    required:
+      - count
+    properties:
+      attrs:
+        $ref: '#/definitions/AttributesTypeV2'
+      count:
+        type: integer
+      type:
+        type: string
+  AttributesTypeV2:
+    additionalProperties:
+      $ref: '#/definitions/AttributeTypeV2'
+  AttributeTypeV2:
+    required:
+      - types
+    properties:
+      types:
+        type: array
+        items:
+          type: string
+  ActionV2:
+    required:
+      - actionType
+      - entities
+    properties:
+      actionType:
+        type: string
+        enum: ["APPEND", "UPDATE", "DELETE", "APPEND_STRICT"]
+      entities:
+        type: array
+        items: 
+          $ref: '#/definitions/EntityAttributesV2'
 
 ############################################################################
 #
 # Type for APIv1 NGSI 10
 #
+  QueryContext:
+    allOf:
+      - $ref: '#/definitions/Entities'
+      - properties:
+          attrinutes:
+            type: array
+            items: 
+              type: string
+  UpdateActions:
+    required:
+      - contextElements
+      - updateAction
+    properties:
+      contextElements:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      updateAction:
+        type: string
+        enum: [APPEND, UPDATE] 
+  ContextResponses:
+    required:
+      - contextResponses
+    properties:
+      contextResponses:
+        type: array
+        items:
+          $ref: '#/definitions/ContextResponse'
+  ContextResponse:
+    allOf:
+      - properties:
+          contextElement:
+            $ref: '#/definitions/EntityAttributes'
+      - $ref: '#/definitions/Response'
+  SubscribeContext:
+    required:
+      - entities
+      - reference
+      - duration
+      - throttling
+    properties:
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          type: string
+      reference:
+        type: string
+      duration:
+        $ref: '#/definitions/Duration'
+      throttling:
+        $ref: '#/definitions/Duration'
+      notifyConditions:
+        type: array
+        items:
+          $ref: '#/definitions/NotifyCondition'
+  UpdateSubscribeContext:
+    required:
+      - subscriptionId
+    properties:
+      subscriptionId:
+        type: string
+      entities:
+        type: array
+        items:
+          $ref: '#/definitions/Entity'
+      attributes:
+        type: array
+        items:
+          type: string
+      reference:
+        type: string
+      duration:
+        $ref: '#/definitions/Duration'
+      throttling:
+        $ref: '#/definitions/Duration'
+      notifyConditions:
+        type: array
+        items:
+          $ref: '#/definitions/NotifyCondition'
+  UnsubscribeContext:
+    required:
+      - subscriptionId
+    properties:
+      subscriptionId:
+        type: string
+  NotifyCondition:
+    properties:
+      type:
+        type: string
+        enum: [ONCHANGE]
+      condValues:
+        type: array
+        items:
+          type: string
+  SubscribeResponse:
+    properties:
+      duration:
+        $ref: '#/definitions/Duration'
+      subscriptionId:
+        type: string
+  UnsubscribeResponse:
+    allOf:
+      - $ref: '#/definitions/Response'
+      - properties:
+          subscriptionId:
+            type: string
+  EntityCreationContextResponse:
+    allOf:
+      - $ref: '#/definitions/ContextAttributes'
+      - $ref: '#/definitions/Response'
+  EntityCreationContextResponses:
+    allOf:
+      - $ref: '#/definitions/Entity'
+      - properties:
+          contextResponses:
+            type: array
+            items:
+              $ref: '#/definitions/EntityCreationContextResponse'
+  Type: 
+    allOf:
+      - $ref: '#/definitions/ContextAttributes'
+      - properties:
+          name:
+            type: string
+  TypesResponse:
+    allOf:
+      - $ref: '#/definitions/Response'
+      - properties:
+          types:
+            type: array
+            items:
+              $ref: '#/definitions/Type'
+  TypeResponse:
+    allOf:
+      - $ref: '#/definitions/Response'
+      - $ref: '#/definitions/Type'
 
 ############################################################################
 #
 # Type for APIv1 NGSI 9
 #
   CancelSubscriptionResponse:
-    properties:
-      statusCode:
-        $ref: '#/definitions/ErrorCode'
-      subscriptionId:
-        type: string
-      errorCode:
-        $ref: '#/definitions/ErrorCode'  
+    allOf:
+      - $ref: '#/definitions/Response'
+      - properties:
+          subscriptionId:
+            type: string
   Subscription:
     required:
       - subscriptionId
@@ -1130,52 +2004,33 @@ definitions:
       - duration
     properties:
       duration:
-        type: string
-        example: "P1M"
+        $ref: '#/definitions/Duration'
       provindingApplication:
         type: string
   SubscribeRegistration:
-    required:
-      - entities
-    properties:
-      entities:
-        type: array
-        items:
-          $ref: '#/definitions/Entity'
-      attributes:
-        type: array
-        items:
-          $ref: '#/definitions/Attribute'
-      reference:
-        type: string
-      duration:
-        type: string
-        example: "P1M"
-      provindingApplication:
-        type: string
-      subscriptionId:
-        type: string
+    allOf:
+      - properties:
+          entities:
+            type: array
+            items:
+              $ref: '#/definitions/Entity'
+          reference:
+            type: string
+          duration:
+            $ref: '#/definitions/Duration'
+          provindingApplication:
+            type: string
+          subscriptionId:
+            type: string
+      - $ref: '#/definitions/ContextAttributes'
   UpdateSubscribeRegistration:
     required:
       - subscriptionId
-    properties:
-      entities:
-        type: array
-        items:
-          $ref: '#/definitions/Entity'
-      attributes:
-        type: array
-        items:
-          $ref: '#/definitions/Attribute'
-      reference:
-        type: string
-      duration:
-        type: string
-        example: "P1M"
-      provindingApplication:
-        type: string
-      subscriptionId:
-        type: string
+    allOf:
+      - properties:
+          subscriptionId:
+            type: string
+      - $ref: '#/definitions/SubscribeRegistration'
   ContextRegistrationResponses:
     properties:
       contextRegistrationResponses:
@@ -1194,9 +2049,20 @@ definitions:
         items:
           $ref: '#/definitions/ContextRegistration'
       duration:
-        type: string
-        example: P1M
+        $ref: '#/definitions/Duration'
   ContextRegistration:
+    required:
+      - entities
+    allOf:
+      - properties:
+          entities:
+            type: array
+            items:
+              $ref: '#/definitions/Entity'
+          provindingApplication:
+            type: string
+      - $ref: '#/definitions/ContextAttributes'
+  Entities: 
     required:
       - entities
     properties:
@@ -1204,27 +2070,9 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Entity'
-      attributes:
-        type: array
-        items:
-          $ref: '#/definitions/Attribute'
-      provindingApplication:
-        type: string
-  UpdateActions:
-    required:
-      - contextElements
-      - updateAction
-    properties:
-      contextElements:
-        type: array
-        items:
-          $ref: '#/definitions/Entity'
-      updateAction:
-        type: string
   Entity:
     required:
       - type
-      - isPattern
       - id
     properties:
       type:
@@ -1233,29 +2081,45 @@ definitions:
         type: boolean
       id:
         type: string
+  EntityAttributes:
+    allOf:
+      - $ref: '#/definitions/Entity'
+      - $ref: '#/definitions/ContextAttributes'
+  Attribute:
+    required:
+      - name
+    allOf:
+      - properties:
+          name:
+            type: string
+          type:
+            type: string
+          isDomain:
+            type: boolean
+          value:
+            type: [string, integer, number]
+      - $ref: '#/definitions/AttributeValue'
+  ContextAttributes:
+    properties:
       attributes:
         type: array
         items:
           $ref: '#/definitions/Attribute'
-  Attribute:
-    required:
-      - name
-    properties:
-      name:
-        type: string
-      type:
-        type: string
-      isDomain:
-        type: boolean
-      value:
-        type: [string, integer, number]
+  ContextAttributesResponse:
+    allOf:
+      - $ref: '#/definitions/ContextAttributes'
+      - $ref: '#/definitions/Response'
   RegisterResponse:
     properties:
       duration:
-        type: string
+        $ref: '#/definitions/Duration'
       registrationId:
         type: string
       errorCode:
+        $ref: '#/definitions/ErrorCode'
+  Response:
+    properties:
+      statusCode:
         $ref: '#/definitions/ErrorCode'
   ErrorCode:
     required:
