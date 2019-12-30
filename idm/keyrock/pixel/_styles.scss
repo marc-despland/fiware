@@ -1,0 +1,21 @@
+/****************************** Custom styles rewrite */
+
+.logo-header .brand {
+  background-image: url(../img/mylogo.png);
+  width: 166px;
+  background-size: 166px 55px;
+  height: 55px;
+}
+
+.logo-header {
+    float: left;
+}
+
+.presentation {
+    .media {
+        height: auto;
+        footer {
+            margin-top: 15px;
+        }
+    }
+}

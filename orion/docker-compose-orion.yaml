@@ -1,0 +1,107 @@
+version: "3.3"
+services:
+  oriondb:
+    image: mongo
+    command: --auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo 
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/orion.db.root.password 
+      - MONGO_INITDB_DATABASE=admin
+      - ORIONDB_PASSWORD_FILE=/run/secrets/orion.db.password
+    volumes:
+      - orion-db:/data/db
+      - ./oriondb:/docker-entrypoint-initdb.d
+    deploy:
+      replicas: 1
+    networks:
+      - databases
+    secrets:
+      - orion.db.root.password
+      - orion.db.password
+  orion:
+    build: ./orion
+    image: my-orion
+    environment:
+      - DB_HOST=oriondb 
+      - DB=orion 
+      - DB_USER=orion 
+      - DB_PASSWORD_FILE=/run/secrets/orion.db.password
+    deploy:
+      replicas: 1
+    ports:
+      - "1026:1026"
+    networks:
+      - databases
+      - orion
+      - cygnus
+    secrets:
+      - orion.db.password
+  cometdb:
+    image: mongo
+    command: --auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/comet.db.root.password
+      - MONGO_INITDB_DATABASE=admin
+      - COMETDB_PASSWORD_FILE=/run/secrets/comet.db.password
+    volumes:
+      - comet-db:/data/db
+      - ./cometdb:/docker-entrypoint-initdb.d
+    deploy:
+      replicas: 1
+    networks:
+      - databases
+    secrets:
+      - comet.db.root.password
+      - comet.db.password  
+  cygnus:
+    image: fiware/cygnus-ngsi
+    environment:
+      - CYGNUS_MONGO_HOSTS=cometdb:27017
+      - CYGNUS_MONGO_USER=comet
+      - CYGNUS_MONGO_PASS_FILE=/run/secrets/comet.db.password
+    deploy:
+      replicas: 1
+    networks:
+      - databases
+      - cygnus
+    secrets:
+      - comet.db.password 
+  comet:
+    build: ./comet
+    image: my-sth-comet
+    environment:
+      - STH_HOST=0.0.0.0
+      - STH_PORT=8080
+      - DB_USERNAME=comet
+      - DB_PASSWORD_FILE=/run/secrets/comet.db.password
+      - DB_URI=cometdb:27017
+      - DEFAULT_SERVICE=default
+      - DEFAULT_SERVICEPATH=/
+    deploy:
+      replicas: 1
+    ports:
+      - "8080:8080"
+    networks:
+      - databases
+      - comet
+    secrets:
+      - comet.db.password 
+networks:
+  databases:
+  orion:
+  comet:
+  cygnus:
+secrets:
+  orion.db.root.password:
+    file: ./secrets/orion.db.root.password
+  orion.db.password:
+    file: ./secrets/orion.db.password
+  comet.db.root.password:
+    file: ./secrets/comet.db.root.password
+  comet.db.password:
+    file: ./secrets/comet.db.password
+volumes:
+  orion-db:
+  comet-db:
+      

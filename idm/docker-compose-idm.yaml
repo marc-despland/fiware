@@ -1,0 +1,79 @@
+version: "3.5"
+services:
+  keyrock:
+    build: ./keyrock
+    image: my-idm:7.8.0
+    container_name: fiware-keyrock
+    hostname: keyrock
+    networks:
+      default:
+        ipv4_address: 172.21.1.5
+    depends_on:
+      - mysql-db
+    ports:
+      - "3000:3000"
+      - "443:443"
+    environment:
+      - IDM_CORS_ENABLED=true 
+      - IDM_DB_HOST=mysql-db
+      - IDM_HOST=http://192.168.1.32:3000
+      - IDM_PORT=3000
+      - IDM_DB_USER=root
+      - IDM_ADMIN_USER=admin
+      - IDM_ADMIN_EMAIL=admin@example.com
+      - IDM_EMAIL_ADDRESS=noreply@example.com
+      - IDM_TITLE=My Identity Manager
+      - IDM_THEME=mytheme
+      - IDM_PDP_LEVEL=advanced
+      - IDM_AUTHZFORCE_ENABLED=true
+      - IDM_AUTHZFORCE_HOST=authzforce
+      - IDM_SESSION_SECRET_FILE=/run/secrets/idm.session.secret
+      - IDM_ENCRYPTION_KEY_FILE=/run/secrets/idm.encryption.key 
+      - IDM_DB_PASS_FILE=/run/secrets/idm.db.pass
+      - IDM_ADMIN_PASS_FILE=/run/secrets/idm.admin.pass
+    secrets:
+      - idm.session.secret
+      - idm.encryption.key
+      - idm.db.pass
+      - idm.admin.pass
+  mysql-db:
+    restart: always
+    image: mysql:5.7
+    hostname: mysql-db
+    container_name: db-mysql
+    networks:
+      default:
+        ipv4_address: 172.21.1.6
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/idm.db.pass
+      - MYSQL_ROOT_HOST=172.21.1.5
+    volumes:
+      - mysql-db:/var/lib/mysql
+    secrets:
+      - idm.db.pass
+  authzforce:
+    restart: always
+    image: fiware/authzforce-ce-server:release-8.1.0
+    hostname: authzforce
+    container_name: authzforce
+    ports:
+      - 8081:8080
+    networks:
+      default:
+        ipv4_address: 172.21.1.7
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.21.1.0/24
+volumes:
+  mysql-db:
+secrets:
+  idm.session.secret:
+    file: ./secrets/idm.session.secret
+  idm.encryption.key:
+    file: ./secrets/idm.encryption.key
+  idm.db.pass:
+    file: ./secrets/idm.db.pass
+  idm.admin.pass:
+    file: ./secrets/idm.admin.pass
