@@ -1,0 +1,33 @@
+{
+    "id": "urn:ngsi-ld:Building:store003",
+    "type": "Building",
+    "category": {
+        "type": "Property",
+        "value": ["vampire"]
+    },
+    "velo": {
+        "type": "Property",
+        "value": {
+            "streetAddress": "Bornholmer Straße 65",
+            "addressRegion": "Berlin",
+            "addressLocality": "Prenzlauer Berg",
+            "postalCode": "10439"
+        },
+        "verified": {
+            "type": "Property",
+            "value": true
+        }
+    },
+    "location": {
+        "type": "GeoProperty",
+        "value": {
+             "type": "Point",
+             "coordinates": [13.3986, 52.5547]
+        }
+    },
+    "name": {
+        "type": "Property",
+        "value": "Bösebrücke Einkauf"
+    },
+    "@context": "https://schema.lab.fiware.org/ld/context"
+}
