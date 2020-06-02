@@ -1,0 +1,27 @@
+version: "3.3"
+services:
+  servicedb:
+    image: mongo
+    container_name: servicedb
+    command: --auth
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo 
+      - MONGO_INITDB_ROOT_PASSWORD_FILE=/run/secrets/service.db.root.password 
+      - MONGO_INITDB_DATABASE=admin
+      - SERVICEDB_DATABASE=pixel
+      - SERVICEDB_PASSWORD_FILE=/run/secrets/service.db.password
+    volumes:
+      - service-db:/data/db
+      - ./servicedb:/docker-entrypoint-initdb.d
+    secrets:
+      - service.db.root.password
+      - service.db.password
+secrets:
+  service.db.root.password:
+    file: ./secrets/service.db.root.password
+  service.db.password:
+    file: ./secrets/service.db.password
+volumes:
+  service-db:
