@@ -1,0 +1,18 @@
+version: "3.5"
+services:
+  mysqld:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql.db.root.pass
+      - MYSQL_ROOT_HOST=%
+    volumes:
+      - mysql-db:/var/lib/mysql
+    secrets:
+      - mysql.db.root.pass
+volumes:
+  mysql-db:
+secrets:
+  mysql.db.root.pass:
+    file: ./secrets/mysql.db.root.pass

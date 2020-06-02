@@ -1,0 +1,22 @@
+version: "3.5"
+services:
+  mysqld:
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql.db.root.pass
+      - MYSQL_ROOT_HOST=%
+      - MYSQL_USER=mysql
+      - MYSQL_PASSWORD=/run/secrets/mysql.db.user.pass
+      - MYSQL_DATABASE=mydatabase
+    volumes:
+      - mysql-db:/var/lib/mysql
+    secrets:
+      - /mysql.db.root.pass
+      - mysql.db.user.pass
+volumes:
+  mysql-db:
+secrets:
+  mysql.db.root.pass:
+    file: ./secrets/mysql.db.root.pass
+  mysql.db.user.pass:
+    file: ./secrets/mysql.db.user.pass
