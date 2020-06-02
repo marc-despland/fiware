@@ -1,0 +1,15 @@
+version: '3.3'
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    ports:
+      - 2181:2181
+    volumes:
+      - zookeeper_data:/var/opt/zookeeper
+    logging:
+      options:
+        max-size: "15m"
+        max-file: "2"
+volumes:
+  zookeeper_data:
+    driver: local
