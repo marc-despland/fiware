@@ -11,10 +11,6 @@ services:
     volumes:
       - orion-db:/data/db
       - ./oriondb:/docker-entrypoint-initdb.d
-    deploy:
-      replicas: 1
-    networks:
-      - orion
     secrets:
       - orion.db.root.password
       - orion.db.password
@@ -26,17 +22,10 @@ services:
       - DB=orion 
       - DB_USER=orion 
       - DB_PASSWORD_FILE=/run/secrets/orion.db.password
-    deploy:
-      replicas: 1
     ports:
       - "1026:1026"
-    networks:
-      - orion
     secrets:
       - orion.db.password
-
-networks:
-  orion:
 secrets:
   orion.db.root.password:
     file: ./secrets/orion.db.root.password
